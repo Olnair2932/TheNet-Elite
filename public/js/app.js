@@ -1,14 +1,29 @@
+// --- CONFIGURAÇÃO FIREBASE ---
+// Mestre Olnair, o Firebase usará as configurações que já estão no seu projeto.
+const firebaseConfig = {
+    apiKey: "AIzaSyB...", // O Firebase preencherá isso automaticamente ou use o seu original
+    authDomain: "thenet-d2994.firebaseapp.com",
+    projectId: "thenet-d2994",
+    storageBucket: "thenet-d2994.appspot.com",
+    messagingSenderId: "1055...",
+    appId: "1:1055..."
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 const grid = document.getElementById('grid');
 const triesDisplay = document.getElementById('tries');
 const recordDisplay = document.getElementById('record');
 const timerDisplay = document.getElementById('timer');
+const rankingList = document.getElementById('ranking-list');
 const icons = ['🚀','🚀','🔥','🔥','💎','💎','🛡️','🛡️','⚡','⚡','🌐','🌐','💻','💻','🤖','🤖'];
 
 let flippedCards = [], lockBoard = false, tries = 0, matches = 0, seconds = 0, timerActive = false;
 let record = localStorage.getItem('thenet-record') || '--';
 recordDisplay.textContent = record;
 
-// --- MATRIX EFFECT ---
+// --- EFEITO MATRIX ---
 const canvas = document.getElementById('matrix');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -28,30 +43,18 @@ function drawMatrix() {
 }
 setInterval(drawMatrix, 50);
 
-// --- AUDIO ENGINE ---
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSound(freq, type, dur) {
-    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + dur);
+// --- RANKING GLOBAL ---
+async function updateLeaderboard() {
+    const snapshot = await db.collection('ranking').orderBy('seconds', 'asc').limit(5).get();
+    rankingList.innerHTML = '';
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${data.name}</span> <span>${data.seconds}s (${data.tries} mov)</span>`;
+        rankingList.appendChild(li);
+    });
 }
-
-// --- SHARE API ---
-window.shareAccess = async () => {
-    const shareData = {
-        title: 'TheNet v4.1 Elite',
-        text: 'Acesse o Terminal Hacker do Mestre Olnair Gonzaga Pereira!',
-        url: 'https://thenet-d2994.web.app/'
-    };
-    try {
-        await navigator.share(shareData);
-    } catch (err) {
-        console.log('Share canceled or not supported');
-    }
-};
+updateLeaderboard();
 
 // --- GAME LOGIC ---
 icons.sort(() => Math.random() - 0.5);
@@ -75,7 +78,6 @@ function flipCard() {
             timerDisplay.textContent = `${min}:${sec}`;
         }, 1000);
     }
-    playSound(400, 'sine', 0.1);
     this.classList.add('flipped');
     flippedCards.push(this);
     if (flippedCards.length === 2) {
@@ -89,15 +91,35 @@ function checkMatch() {
     lockBoard = true;
     const [c1, c2] = flippedCards;
     if (c1.dataset.icon === c2.dataset.icon) {
-        playSound(800, 'square', 0.2);
         matches++;
         flippedCards = []; lockBoard = false;
-        if (matches === 8) setTimeout(() => alert("SISTEMA RESTAURADO!"), 500);
+        if (matches === 8) endGame();
     } else {
-        playSound(150, 'sawtooth', 0.3);
         setTimeout(() => {
             c1.classList.remove('flipped'); c2.classList.remove('flipped');
             flippedCards = []; lockBoard = false;
         }, 800);
     }
 }
+
+async function endGame() {
+    const playerName = prompt("SISTEMA RESTAURADO! Digite seu Codinome Hacker:") || "Anon_Sentinela";
+    
+    // Salvar no Firestore
+    await db.collection('ranking').add({
+        name: playerName,
+        tries: tries,
+        seconds: seconds,
+        date: new Date()
+    });
+
+    if (record === '--' || tries < parseInt(record)) {
+        localStorage.setItem('thenet-record', tries);
+    }
+    location.reload();
+}
+
+window.shareAccess = async () => {
+    const shareData = { title: 'TheNet v4.3', text: 'Venci o terminal hacker!', url: 'https://thenet-d2994.web.app/' };
+    try { await navigator.share(shareData); } catch (err) {}
+};

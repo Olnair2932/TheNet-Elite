@@ -1,16 +1,20 @@
-# 🛡️ TheNet Elite v4.2 - PWA
+# 🛡️ TheNet Elite v4.3 - Global Ranking
 
 ![Status](https://img.shields.io/badge/Status-Operacional-00ff41?style=for-the-badge)
-![GitHub](https://img.shields.io/github/languages/top/Olnair2932/TheNet-Elite?color=red&style=for-the-badge)
+![Database](https://img.shields.io/badge/DB-Cloud_Firestore-blue?style=for-the-badge)
 
-Terminal de entretenimento hacker imersivo e de alta performance. Desenvolvido sob o protocolo de **Aliança Técnica** entre o Mestre Olnair e a Trindade Gemini.
+Terminal de entretenimento hacker imersivo. A versão 4.3 introduz a **Arena Global**, permitindo que competidores de todo o mundo registrem seus recordes em tempo real.
 
-## 🚀 Tecnologias de Elite
-- **PWA Nativo:** Instalável em Android com suporte offline.
-- **Matrix Canvas Engine:** Chuva de códigos binários a 60fps.
-- **Web Audio API:** Efeitos sonoros gerados sinteticamente.
-- **Service Worker v4.2:** Gestão avançada de cache e memória.
-- **Firebase Hosting:** Infraestrutura escalável na nuvem.
+## 🚀 Novidades da v4.3
+- **Global Leaderboard:** Ranking em tempo real integrado ao Cloud Firestore.
+- **Identidade Hacker:** Registro de codinomes para os Top 10 Sentinelas.
+- **PWA v4.3:** Cache otimizado para carregamento instantâneo do ranking.
+
+## 🛠️ Tecnologias de Elite
+- **Firebase Firestore:** Banco de dados NoSQL em tempo real.
+- **Matrix Canvas Engine:** Visual binário hacker.
+- **Web Audio API:** Feedback sonoro sintético.
+- **PWA Architecture:** Instalável e responsivo.
 
 ## 👨‍💻 Arquiteto do Sistema
 **Olnair Gonzaga Pereira**  
