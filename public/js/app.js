@@ -1,15 +1,16 @@
 // --- CONFIGURAÇÃO FIREBASE ---
-// Mestre Olnair, o Firebase usará as configurações que já estão no seu projeto.
+// Mestre Olnair, certifique-se de usar suas chaves reais aqui
 const firebaseConfig = {
-    apiKey: "AIzaSyB...", // O Firebase preencherá isso automaticamente ou use o seu original
     authDomain: "thenet-d2994.firebaseapp.com",
     projectId: "thenet-d2994",
     storageBucket: "thenet-d2994.appspot.com",
-    messagingSenderId: "1055...",
-    appId: "1:1055..."
+    messagingSenderId: "1055743842186",
+    appId: "1:1055743842186:web:65b058c40854298150a0f0"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.firestore();
 
 const grid = document.getElementById('grid');
@@ -22,6 +23,26 @@ const icons = ['🚀','🚀','🔥','🔥','💎','💎','🛡️','🛡️','�
 let flippedCards = [], lockBoard = false, tries = 0, matches = 0, seconds = 0, timerActive = false;
 let record = localStorage.getItem('thenet-record') || '--';
 recordDisplay.textContent = record;
+
+// --- MOTOR DE ÁUDIO DE ELITE (COM AUTO-RESUME) ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(freq, type, dur) {
+    // Força o navegador a liberar o áudio se estiver suspenso
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+}
 
 // --- EFEITO MATRIX ---
 const canvas = document.getElementById('matrix');
@@ -45,14 +66,18 @@ setInterval(drawMatrix, 50);
 
 // --- RANKING GLOBAL ---
 async function updateLeaderboard() {
-    const snapshot = await db.collection('ranking').orderBy('seconds', 'asc').limit(5).get();
-    rankingList.innerHTML = '';
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        const li = document.createElement('li');
-        li.innerHTML = `<span>${data.name}</span> <span>${data.seconds}s (${data.tries} mov)</span>`;
-        rankingList.appendChild(li);
-    });
+    try {
+        const snapshot = await db.collection('ranking').orderBy('seconds', 'asc').limit(5).get();
+        rankingList.innerHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${data.name}</span> <span>${data.seconds}s (${data.tries} mov)</span>`;
+            rankingList.appendChild(li);
+        });
+    } catch (e) {
+        rankingList.innerHTML = '<li>Rede offline ou em pausa.</li>';
+    }
 }
 updateLeaderboard();
 
@@ -69,6 +94,8 @@ icons.forEach(icon => {
 
 function flipCard() {
     if (lockBoard || this.classList.contains('flipped') || flippedCards.length >= 2) return;
+    
+    // Inicia o timer e garante o som no primeiro toque
     if (!timerActive) {
         timerActive = true;
         setInterval(() => {
@@ -78,8 +105,11 @@ function flipCard() {
             timerDisplay.textContent = `${min}:${sec}`;
         }, 1000);
     }
+
+    playSound(400, 'sine', 0.1); // Som de clique
     this.classList.add('flipped');
     flippedCards.push(this);
+
     if (flippedCards.length === 2) {
         tries++;
         triesDisplay.textContent = tries;
@@ -91,10 +121,12 @@ function checkMatch() {
     lockBoard = true;
     const [c1, c2] = flippedCards;
     if (c1.dataset.icon === c2.dataset.icon) {
+        playSound(800, 'square', 0.2); // Som de acerto
         matches++;
         flippedCards = []; lockBoard = false;
-        if (matches === 8) endGame();
+        if (matches === 8) setTimeout(endGame, 500);
     } else {
+        playSound(150, 'sawtooth', 0.3); // Som de erro
         setTimeout(() => {
             c1.classList.remove('flipped'); c2.classList.remove('flipped');
             flippedCards = []; lockBoard = false;
@@ -104,14 +136,14 @@ function checkMatch() {
 
 async function endGame() {
     const playerName = prompt("SISTEMA RESTAURADO! Digite seu Codinome Hacker:") || "Anon_Sentinela";
-    
-    // Salvar no Firestore
-    await db.collection('ranking').add({
-        name: playerName,
-        tries: tries,
-        seconds: seconds,
-        date: new Date()
-    });
+    try {
+        await db.collection('ranking').add({
+            name: playerName,
+            tries: tries,
+            seconds: seconds,
+            date: firebase.firestore.Timestamp.now()
+        });
+    } catch(e) { console.log("Erro ao salvar ranking"); }
 
     if (record === '--' || tries < parseInt(record)) {
         localStorage.setItem('thenet-record', tries);
