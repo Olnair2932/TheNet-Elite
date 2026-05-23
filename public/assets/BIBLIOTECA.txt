@@ -1,0 +1,13 @@
+---------------------------------------------------------
+      BIBLIOTECA DE ATIVOS - THENET ELITE
+---------------------------------------------------------
+ARQUITETO: Olnair Gonzaga Pereira
+SISTEMA: v4.3.2 (Estrutura de Ativos Local)
+---------------------------------------------------------
+DIRETÓRIOS:
+/assets/img    -> Imagens de fundo e Logotipos.
+/assets/icons  -> Ícones nativos para o PWA (192x192, 512x512).
+/assets/sounds -> Banco de sons (atualmente usando Web Audio API).
+---------------------------------------------------------
+STATUS: Sincronizado e Protegido.
+---------------------------------------------------------

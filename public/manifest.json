@@ -1,5 +1,5 @@
 {
-  "name": "TheNet Elite v4.0",
+  "name": "TheNet Elite v4.3.2",
   "short_name": "TheNet",
   "description": "Terminal de Entretenimento Hacker do Mestre Olnair",
   "start_url": "/index.html",
@@ -8,7 +8,7 @@
   "theme_color": "#00ff41",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/606/606548.png",
+      "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
