@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00ff41">
+    <title>TheNet v4.1 - Elite</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <div class="hud">
+        <header>
+            <h1>THENET <small>v4.1</small></h1>
+        </header>
+        <div class="stats-bar">
+            <div class="stat">T: <b id="timer">00:00</b></div>
+            <div class="stat">M: <b id="tries">0</b></div>
+            <div class="stat">B: <b id="record">--</b></div>
+        </div>
+        <div class="grid" id="grid"></div>
+        <div class="btn-group">
+            <button class="cmd-btn" onclick="location.reload()">REINICIAR</button>
+            <button class="cmd-btn" onclick="shareAccess()">COMPARTILHAR</button>
+        </div>
+        <footer class="footer-credits">
+            DESENVOLVEDOR MESTRE: OLNAIR GONZAGA PEREIRA<br>
+            <small>olnairpereira@gmail.com | SENTINELA IA</small>
+        </footer>
+    </div>
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>
